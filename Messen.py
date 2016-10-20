@@ -8,7 +8,8 @@
 
 import pandas as pd
 import json
-import datetime as time
+import numpy as np
+from datetime import datetime
 
 ################################# Version info ################################
 version = 0.0
@@ -27,25 +28,29 @@ metadaten = [['Messgroesse','Bitte geben Sie die Messgroesse (z.B. Spannug, Stro
 
 ################################# Functions ###################################
 #------------------------------------------------------------------------------
-def input_with_type_check(printstring='',type='str',errormsg='Error'):
-    if type == 'str':
-        try:
-            return str(input(printstring))
-        except ValueError:
-            print (errormsg)
-            return None
-    elif type == 'int':
-        try:
-            return  int(input(printstring))
-        except ValueError:
-            print (errormsg)
-            return None
-    elif type == 'float':
-        try:
-            return float(input(printstring))
-        except ValueError:
-            print (errormsg)
-            return None
+def input_with_type_check(printstring='',input_type='str',errormsg='Error',escape_sequence='ende'):
+    read_data = input(printstring)
+    if(read_data != escape_sequence):
+        if input_type == 'str':
+            try:
+                return str(read_data)
+            except ValueError:
+                print (errormsg)
+                return None
+        elif input_type == 'int':
+            try:
+                return  int(read_data)
+            except ValueError:
+                print (errormsg)
+                return None
+        elif input_type == 'float':
+            try:
+                return float(read_data)
+            except ValueError:
+                print (errormsg)
+                return None
+    else:
+        return escape_sequence
 #------------------------------------------------------------------------------
 
 ################################# Main code ###################################
@@ -54,17 +59,19 @@ print ("Sie haben ein neues Experiment begonnen.\n")
 
 # Now before the exeriment we collect metadata about it and store it in a dict.
 print ("Bitte geben Sie nun die zu messenden Groessen ein (z.B. Spannung, Strom ...)\n")
+
+
+#------------------------------------------------------------------------------
 #Here we start to collect metadata (specified in the metadaten table) for the experiment 
-# the Messgroessen is a list of lists that store the metadata for each column of mesurements
+# the messgroessen is a list of lists that store the metadata for each column of mesurements
 messgroessen = []
 i = 0
-
 # here we ask the user for the metadata specified in the metadaten list. we also Print the descriptive texts and check for type integrity
 while i==0 or answer=='y' or answer == 'Y':
     aktuelle_messgroesse = []
     i = 0
     while i < len(metadaten):
-        eingabe = input_with_type_check(metadaten[i][1],metadaten[i][2],eingabefehler)
+        eingabe = input_with_type_check(metadaten[i][1],metadaten[i][2],eingabefehler,'ende')
         if eingabe is not None:
             aktuelle_messgroesse.append(eingabe)
             i += 1
@@ -78,30 +85,29 @@ while i==0 or answer=='y' or answer == 'Y':
 print (messgroessen)
 print ('\n')
 
+
+#------------------------------------------------------------------------------
 #Now we start to collect the data that is measured during the experiment
-#herefor we create a numpy array to hold the data in
-messungen = np.array(dtype = object)
-aktuelle_messung = [None]
+messungen = []
+aktuelle_messung = [None,None]
 i = 0
-while aktuelle_messung[-1] is not 'ende':
+while aktuelle_messung[-2] is not 'ende':
     # Initialise Variables
-    j = 0
     aktuelle_messung = []
     print ('------------------------------')
-    print ('%i. Messung: '%i)
-    while j < len(metadaten):
+    print ('%i. Messung: '%(i+1))
+    j = 0
+    while j in range(len(messgroessen)):
         messung = input_with_type_check(messgroessen[j][1]+': ','float',eingabefehler)
-        if messung is not None and messung is not 'ende':
+        if(messung != None) and (messung != 'ende'):
             aktuelle_messung.append(messung)
             j += 1
-        if messung is 'ende':
+        elif messung is 'ende':
             aktuelle_messung.append(messung)
             break
-    aktuelle_messung.append(time.datetime())
+    aktuelle_messung.append(datetime.now())
     messungen.append(aktuelle_messung)
     i += 1
-
-
-
+del messungen[-1]
 
 
