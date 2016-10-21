@@ -16,7 +16,8 @@ version = 0.0
 
 ################################# User interface Strings ######################
 eingabefehler = 'Keine gueltige eingabe'
-
+welcheeingabe = 'Welche der Daten ist falsch (nummer des Datensatzes): '
+eingaberichtig = 'Sind die gezeigten Daten richtig? (y/n): '
 
 ################################# Useful static stuff #########################
 # Here we can assign Units to the desired measurement that are automatically added if the measurement is found in the following table
@@ -60,7 +61,6 @@ print ("Sie haben ein neues Experiment begonnen.\n")
 # Now before the exeriment we collect metadata about it and store it in a dict.
 print ("Bitte geben Sie nun die zu messenden Groessen ein (z.B. Spannung, Strom ...)\n")
 
-
 #------------------------------------------------------------------------------
 #Here we start to collect metadata (specified in the metadaten table) for the experiment 
 # the messgroessen is a list of lists that store the metadata for each column of mesurements
@@ -85,7 +85,6 @@ while i==0 or answer=='y' or answer == 'Y':
 print (messgroessen)
 print ('\n')
 
-
 #------------------------------------------------------------------------------
 #Now we start to collect the data that is measured during the experiment
 messungen = []
@@ -109,5 +108,25 @@ while aktuelle_messung[-2] is not 'ende':
     messungen.append(aktuelle_messung)
     i += 1
 del messungen[-1]
+
+print ('Die Messreihe wurde erfolgreich bendet.')
+#------------------------------------------------------------------------------
+# In this Part of the Program we want to display the data to the experimentator 
+# and let him edit it to correct obvious mistakes.
+
+# Display data
+answer = input('Moechten Sie sich ihre gemessenene Ergebnisse anzeigen lassen (y/n): ')
+if answer is 'y' or answer is 'Y':
+    # We now have to print a table that expanfds in both the horizontal and vertical depending on the size of the collected data sets
+    
+    # first we print the Experiment information every messgroessen - Parameter gets a line.
+    print ('Metadaten zu den erfassten Messgroessen: ')
+    for i in messgroessen:
+        print ('================================================================================')
+        for j in i:
+            print ( metadaten[j][0]+': '+ j, end='\n')
+        print ('================================================================================')
+        if input(eingaberichtig) is 'n' or 'N':
+            answer = input_with_type_check(welcheeingabe,'int','Bitte geben Sie eine Zahl an!')
 
 
