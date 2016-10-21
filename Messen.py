@@ -84,7 +84,9 @@ while i==0 or answer=='y' or answer == 'Y':
     answer = input("Soll eine weitere Messgroesse eingestellt werden(y/n):")
 print (messgroessen)
 print ('\n')
-
+del aktuelle_messgroesse
+del answer
+del eingabe
 #------------------------------------------------------------------------------
 #Now we start to collect the data that is measured during the experiment
 messungen = []
@@ -128,5 +130,24 @@ if answer is 'y' or answer is 'Y':
         print ('================================================================================')
         if input(eingaberichtig) is 'n' or 'N':
             answer = input_with_type_check(welcheeingabe,'int','Bitte geben Sie eine Zahl an!')
-
+        #TODO here we have to add the question-Answer stuff for correcting a value
+    
+    print ('Erfasste Daten:')
+    print ('================================================================================\n')
+    # print header for the table from the data in messgroessen:
+    # for the correct formatting we have to determin the max size of the field:
+    maxlengthlist = []                  # This list holds the max length of each column
+    messgroessenindex = 0               # This is simply for keeping track of the number
+    # we now do the stringlength analysis
+    for messgroesse in messgroessen:
+        lengthlist = []                     # This list holds the length of all the elements of a column
+        lengthlist.append(len(messgroesse[0]))
+        for messung in messungen:
+            lengthlist.append(len(str(messung[messgroessenindex])))
+        maxlengthlist.append(max(lengthlist))
+        messgroessenindex += 1
+    
+    print ('Messungen:'.ljust(),end='')
+    for i in messgroessen:
+        print (i[0].ljust(len()))
 
