@@ -95,6 +95,7 @@ i = 0
 while aktuelle_messung[-2] is not 'ende':
     # Initialise Variables
     aktuelle_messung = []
+    aktuelle_messung.append(i+1)
     print ('------------------------------')
     print ('%i. Messung: '%(i+1))
     j = 0
@@ -120,7 +121,7 @@ print ('Die Messreihe wurde erfolgreich bendet.')
 answer = input('Moechten Sie sich ihre gemessenene Ergebnisse anzeigen lassen (y/n): ')
 if answer is 'y' or answer is 'Y':
     # We now have to print a table that expanfds in both the horizontal and vertical depending on the size of the collected data sets
-    
+
     # first we print the Experiment information every messgroessen - Parameter gets a line.
     print ('Metadaten zu den erfassten Messgroessen: ')
     for i in messgroessen:
@@ -131,13 +132,16 @@ if answer is 'y' or answer is 'Y':
         if input(eingaberichtig) is 'n' or 'N':
             answer = input_with_type_check(welcheeingabe,'int','Bitte geben Sie eine Zahl an!')
         #TODO here we have to add the question-Answer stuff for correcting a value
-    
+
     print ('Erfasste Daten:')
     print ('================================================================================\n')
+
     # print header for the table from the data in messgroessen:
     # for the correct formatting we have to determin the max size of the field:
     maxlengthlist = []                  # This list holds the max length of each column
     messgroessenindex = 0               # This is simply for keeping track of the number
+    lenfistcolumn = 9
+    # add the length of the fist column 
     # we now do the stringlength analysis
     for messgroesse in messgroessen:
         lengthlist = []                     # This list holds the length of all the elements of a column
@@ -146,8 +150,9 @@ if answer is 'y' or answer is 'Y':
             lengthlist.append(len(str(messung[messgroessenindex])))
         maxlengthlist.append(max(lengthlist))
         messgroessenindex += 1
-    
-    print ('Messungen:'.ljust(),end='')
-    for i in messgroessen:
-        print (i[0].ljust(len()))
+
+    print ('Messung:'.ljust(lenfirstcolumn),end='')
+    for i in range(len(messgroessen)):
+        print (messgroessen[0].ljust(maxlengthlist(i))))
+
 
