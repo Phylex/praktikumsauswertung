@@ -61,6 +61,10 @@ def max_length_of_column(table):
             lengthlist.append(len(str(row[i])))
         maxlengthlist.append(max(lengthlist))
     return maxlengthlist
+#------------------------------------------------------------------------------
+
+
+
 ################################# Main code ###################################
 print ("Sie haben ein neues Experiment begonnen.\n")
 # TODO We still need to collect data about the experiment such as name of the experimentator date and time and so on
@@ -91,9 +95,9 @@ while i==0 or answer=='y' or answer == 'Y':
     answer = input("Soll eine weitere Messgroesse eingestellt werden(y/n):")
 print (messgroessen)
 print ('\n')
-del aktuelle_messgroesse
 del answer
 del eingabe
+
 #------------------------------------------------------------------------------
 #Now we start to collect the data that is measured during the experiment
 messungen = []
@@ -120,6 +124,7 @@ while aktuelle_messung[-2] is not 'ende':
 del messungen[-1]
 
 print ('Die Messreihe wurde erfolgreich bendet.')
+
 #------------------------------------------------------------------------------
 # In this Part of the Program we want to display the data to the experimentator 
 # and let him edit it to correct obvious mistakes.
@@ -137,20 +142,18 @@ if answer is 'y' or answer is 'Y':
             answer = input_with_type_check(welcheeingabe,'int','Bitte geben Sie eine Zahl an!')
         #TODO here we have to add the question-Answer stuff for correcting a value
     
-    
     print ('\n\nErfasste Daten:')
     print ('================================================================================\n')
-    
     # now we build a printable table
     tabelle = [['Messung']]
     for messgroesse in messgroessen:
-        tabelle[0].append(messgroessen[0])
+        tabelle[0].append(messgroesse[0])
     for messung in messungen:
         tabelle.append(messung)
     #determin the longeset string in the table for width adjustment
     maxlength = max_length_of_column(tabelle)
-    
+    # print the table
     for row in tabelle:
-        for i in range(len(tabelle[0])+1):
+        for i in range(len(messgroessen)+1):
             print (str(row[i]).rjust(maxlength[i]+1),end='|')
         print ('')
