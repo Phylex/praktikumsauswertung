@@ -1,6 +1,9 @@
+import json
+import io
+import time
 metadaten = [['Messgroesse','Bitte geben Sie die Messgroesse (z.B. Spannug, Strom...) an: ','str'],['Einheit','Bitte geben Sie die Einheit der Messgroesse an (Nur SI einheit ohne Vorfaktor) an : ','str'],['Messgeraet','Bitte geben Sie das Messgeraet an: ','str'],['Messbereich','Bitte geben Sie den Messbereich als exponenten der Zehnerpotenz (z.B. \'-3\' fuer milli...) an: ','int'],['Tolleranz','Bitte geben Sie die Tolleranz in Einheiten des Messbereiches (z.B. \'0.1\' fuer eine toleranz von 0.1 mV mit \'-3\' im Messbereich) an: ','float']]
 
-messgroessen = [['Temperatur','V','asdf',0,0.1],['Spannung','V','asdf2',0,0.1]]
+messgroessen = [['Temperatur','K','asdf',0,0.1],['Spannung','V','asdf2',0,0.1]]
 
 messungen = [[1,222,34],[2,55,6],[3,8,99999],[4,150000000000,7]]
 
@@ -82,3 +85,7 @@ for row in tabelle:
     for i in range(len(messgroessen)+1):
         print (str(row[i]).rjust(maxlength[i]+1),end='|')
     print ('')
+
+filename = time.strftime('%Y-%m-%d-%H%M-Experiment') 
+with open(filename,'w') as file:
+    json.dump({'messungen':messungen,'messgroessen':messgroessen},file)
