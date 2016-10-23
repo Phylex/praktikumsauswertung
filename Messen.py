@@ -53,7 +53,14 @@ def input_with_type_check(printstring='',input_type='str',errormsg='Error',escap
     else:
         return escape_sequence
 #------------------------------------------------------------------------------
-
+def max_length_of_column(table):
+    maxlengthlist = []
+    for i in range(len(table[0])):          # we take the first row of the table to be the width
+        lengthlist = []                     # This list holds the length of all the elements of a column
+        for row in table:
+            lengthlist.append(len(str(row[i])))
+        maxlengthlist.append(max(lengthlist))
+    return maxlengthlist
 ################################# Main code ###################################
 print ("Sie haben ein neues Experiment begonnen.\n")
 # TODO We still need to collect data about the experiment such as name of the experimentator date and time and so on
@@ -120,39 +127,30 @@ print ('Die Messreihe wurde erfolgreich bendet.')
 # Display data
 answer = input('Moechten Sie sich ihre gemessenene Ergebnisse anzeigen lassen (y/n): ')
 if answer is 'y' or answer is 'Y':
-    # We now have to print a table that expanfds in both the horizontal and vertical depending on the size of the collected data sets
-
-    # first we print the Experiment information every messgroessen - Parameter gets a line.
     print ('Metadaten zu den erfassten Messgroessen: ')
-    for i in messgroessen:
+    for messgroesse in messgroessen:
         print ('================================================================================')
-        for j in i:
-            print ( metadaten[j][0]+': '+ j, end='\n')
+        for j in range(len(messgroesse)):
+            print ( metadaten[j][0]+': '+ str(messgroesse[j]), end='\n')
         print ('================================================================================')
-        if input(eingaberichtig) is 'n' or 'N':
+        if input(eingaberichtig) == ('n' or 'N'):
             answer = input_with_type_check(welcheeingabe,'int','Bitte geben Sie eine Zahl an!')
         #TODO here we have to add the question-Answer stuff for correcting a value
-
-    print ('Erfasste Daten:')
+    
+    
+    print ('\n\nErfasste Daten:')
     print ('================================================================================\n')
-
-    # print header for the table from the data in messgroessen:
-    # for the correct formatting we have to determin the max size of the field:
-    maxlengthlist = []                  # This list holds the max length of each column
-    messgroessenindex = 0               # This is simply for keeping track of the number
-    lenfistcolumn = 9
-    # add the length of the fist column 
-    # we now do the stringlength analysis
+    
+    # now we build a printable table
+    tabelle = [['Messung']]
     for messgroesse in messgroessen:
-        lengthlist = []                     # This list holds the length of all the elements of a column
-        lengthlist.append(len(messgroesse[0]))
-        for messung in messungen:
-            lengthlist.append(len(str(messung[messgroessenindex])))
-        maxlengthlist.append(max(lengthlist))
-        messgroessenindex += 1
-
-    print ('Messung:'.ljust(lenfirstcolumn),end='')
-    for i in range(len(messgroessen)):
-        print (messgroessen[0].ljust(maxlengthlist(i))))
-
-
+        tabelle[0].append(messgroessen[0])
+    for messung in messungen:
+        tabelle.append(messung)
+    #determin the longeset string in the table for width adjustment
+    maxlength = max_length_of_column(tabelle)
+    
+    for row in tabelle:
+        for i in range(len(tabelle[0])+1):
+            print (str(row[i]).rjust(maxlength[i]+1),end='|')
+        print ('')
