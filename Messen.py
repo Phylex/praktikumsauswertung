@@ -157,3 +157,8 @@ if answer is 'y' or answer is 'Y':
         for i in range(len(messgroessen)+1):
             print (str(row[i]).rjust(maxlength[i]+1),end='|')
         print ('')
+
+# last thing to do is write the collected data into a file using json
+filename = time.strftime('%Y-%m-%d-%H%M-Experiment') 
+with open(filename,'w') as file:
+    json.dump({'messungen':messungen,'messgroessen':messgroessen},file)
