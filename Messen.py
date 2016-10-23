@@ -162,3 +162,5 @@ if answer is 'y' or answer is 'Y':
 filename = time.strftime('%Y-%m-%d-%H%M-Experiment') 
 with open(filename,'w') as file:
     json.dump({'messungen':messungen,'messgroessen':messgroessen},file)
+
+####################################### THE END ###############################
