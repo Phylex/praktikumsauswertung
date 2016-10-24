@@ -9,7 +9,7 @@
 import pandas as pd
 import json
 import numpy as np
-from datetime import datetime
+import time
 
 ################################# Version info ################################
 version = 0.0
@@ -106,7 +106,6 @@ i = 0
 while aktuelle_messung[-2] is not 'ende':
     # Initialise Variables
     aktuelle_messung = []
-    aktuelle_messung.append(i+1)
     print ('------------------------------')
     print ('%i. Messung: '%(i+1))
     j = 0
@@ -122,7 +121,6 @@ while aktuelle_messung[-2] is not 'ende':
     messungen.append(aktuelle_messung)
     i += 1
 del messungen[-1]
-
 print ('Die Messreihe wurde erfolgreich bendet.')
 
 #------------------------------------------------------------------------------
@@ -132,19 +130,28 @@ print ('Die Messreihe wurde erfolgreich bendet.')
 # Display data
 answer = input('Moechten Sie sich ihre gemessenene Ergebnisse anzeigen lassen (y/n): ')
 if answer is 'y' or answer is 'Y':
-    print ('Metadaten zu den erfassten Messgroessen: ')
+    print ('Metadaten zu den erfassten Messgroessen: ',end='')
     for messgroesse in messgroessen:
-        print ('================================================================================')
+        print ('================================================================================', end='')
+        messungsgroessenindex = 1
         for j in range(len(messgroesse)):
-            print ( metadaten[j][0]+': '+ str(messgroesse[j]), end='\n')
-        print ('================================================================================')
+            print ( str(messungsgroessenindex)+'. '+metadaten[j][0]+': '+ str(messgroesse[j]), end='\n')
+            messungsgroessenindex += 1
+        print ('================================================================================',end='')
         if input(eingaberichtig) == ('n' or 'N'):
             answer = input_with_type_check(welcheeingabe,'int','Bitte geben Sie eine Zahl an!')
+            correctedvalue = 0
+            while correctedvalue is not None or 'ende':
+                correctedvalue = input_with_type_check(metadaten[answer-1][0]+': ',metadaten[answer-1][-1])
+            correctedvalue = messgroesse[answer-1]
         #TODO here we have to add the question-Answer stuff for correcting a value
     
     print ('\n\nErfasste Daten:')
-    print ('================================================================================\n')
+    print ('================================================================================',end = '')
     # now we build a printable table
+    messungskopie = messung[:]
+    for messung in messungskopie:
+        messung.insert[]
     tabelle = [['Messung']]
     for messgroesse in messgroessen:
         tabelle[0].append(messgroesse[0])
