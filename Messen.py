@@ -139,6 +139,7 @@ if answer is 'y' or answer is 'Y':
         print ('================================================================================')
         while input(eingaberichtig) == ('n' or 'N'):
             answer = input_with_type_check(welcheeingabe,'int','Bitte geben Sie eine Zahl an!')
+            # TODO here there is something wrong try to fix that at some point
             correctedvalue = None
             while correctedvalue is (None or 'ende'):
                 correctedvalue = input_with_type_check(metadaten[answer-1][0]+': ',metadaten[answer-1][-1])
