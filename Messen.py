@@ -149,12 +149,14 @@ if answer is 'y' or answer is 'Y':
     print ('================================================================================',end = '')
     # now we build a printable table
     messungskopie = messung[:]
+    messungsindex = 1
     for messung in messungskopie:
-        messung.insert[]
+        messung.insert[messungsindex]
+        messungsindex += 1
     tabelle = [['Messung']]
     for messgroesse in messgroessen:
         tabelle[0].append(messgroesse[0])
-    for messung in messungen:
+    for messung in messungskopie:
         tabelle.append(messung)
     #determin the longeset string in the table for width adjustment
     maxlength = max_length_of_column(tabelle)
