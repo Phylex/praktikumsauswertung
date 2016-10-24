@@ -144,7 +144,6 @@ if answer is 'y' or answer is 'Y':
             while correctedvalue is not None or 'ende':
                 correctedvalue = input_with_type_check(metadaten[answer-1][0]+': ',metadaten[answer-1][-1])
             correctedvalue = messgroesse[answer-1]
-        #TODO here we have to add the question-Answer stuff for correcting a value
     
     print ('\n\nErfasste Daten:')
     print ('================================================================================',end = '')
