@@ -10,7 +10,7 @@ import pandas as pd
 import json
 import numpy as np
 import time
-
+from datetime import datetime
 ################################# Version info ################################
 version = 0.0
 
@@ -116,7 +116,7 @@ while aktuelle_messung[-2] is not 'ende':
         elif messung is 'ende':
             aktuelle_messung.append(messung)
             break
-    aktuelle_messung.append(datetime.now())
+    aktuelle_messung.append(datetime.isoformat(datetime.now()))
     messungen.append(aktuelle_messung)
     i += 1
 del messungen[-1]
@@ -129,29 +129,32 @@ print ('Die Messreihe wurde erfolgreich bendet.')
 # Display data
 answer = input('Moechten Sie sich ihre gemessenene Ergebnisse anzeigen lassen (y/n): ')
 if answer is 'y' or answer is 'Y':
-    print ('Metadaten zu den erfassten Messgroessen: ',end='')
+    print ('Metadaten zu den erfassten Messgroessen: ')
     for messgroesse in messgroessen:
-        print ('================================================================================', end='')
+        print ('================================================================================')
         messungsgroessenindex = 1
         for j in range(len(messgroesse)):
             print ( str(messungsgroessenindex)+'. '+metadaten[j][0]+': '+ str(messgroesse[j]), end='\n')
             messungsgroessenindex += 1
-        print ('================================================================================',end='')
-        if input(eingaberichtig) == ('n' or 'N'):
+        print ('================================================================================')
+        while input(eingaberichtig) == ('n' or 'N'):
             answer = input_with_type_check(welcheeingabe,'int','Bitte geben Sie eine Zahl an!')
-            correctedvalue = 0
-            while correctedvalue is not None or 'ende':
+            correctedvalue = None
+            while correctedvalue is (None or 'ende'):
                 correctedvalue = input_with_type_check(metadaten[answer-1][0]+': ',metadaten[answer-1][-1])
-            correctedvalue = messgroesse[answer-1]
-    
+            if correctedvalue is not (None or 'ende'):
+                messgroesse[answer-1] = correctedvalue
+
     print ('\n\nErfasste Daten:')
     print ('================================================================================',end = '')
     # now we build a printable table
-    messungskopie = messung[:]
+    messungskopie = messungen[:]
+    print (messungskopie)
     messungsindex = 1
     for messung in messungskopie:
-        messung.insert[messungsindex]
+        messung.insert(0,messungsindex)
         messungsindex += 1
+    print (messungskopie)
     tabelle = [['Messung']]
     for messgroesse in messgroessen:
         tabelle[0].append(messgroesse[0])
