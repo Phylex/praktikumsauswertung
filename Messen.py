@@ -93,7 +93,6 @@ while i==0 or answer=='y' or answer == 'Y':
     messgroessen.append(aktuelle_messgroesse)
     del aktuelle_messgroesse
     answer = input("Soll eine weitere Messgroesse eingestellt werden(y/n):")
-print (messgroessen)
 print ('\n')
 del answer
 del eingabe
