@@ -147,7 +147,7 @@ if answer is 'y' or answer is 'Y':
                 messgroesse[answer-1] = correctedvalue
 
     print ('\n\nErfasste Daten:')
-    print ('================================================================================',end = '')
+    print ('================================================================================')
     # now we build a printable table
     messungskopie = messungen[:]
     messungsindex = 1
