@@ -141,7 +141,7 @@ if answer is 'y' or answer is 'Y':
             answer = input_with_type_check(welcheeingabe,'int','Bitte geben Sie eine Zahl an!')
             # TODO here there is something wrong try to fix that at some point
             correctedvalue = None
-            while correctedvalue is (None or 'ende'):
+            while correctedvalue == None or correctedvalue == 'ende':
                 correctedvalue = input_with_type_check(metadaten[answer-1][0]+': ',metadaten[answer-1][-1])
             if correctedvalue is not (None or 'ende'):
                 messgroesse[answer-1] = correctedvalue
@@ -150,12 +150,10 @@ if answer is 'y' or answer is 'Y':
     print ('================================================================================',end = '')
     # now we build a printable table
     messungskopie = messungen[:]
-    print (messungskopie)
     messungsindex = 1
     for messung in messungskopie:
         messung.insert(0,messungsindex)
         messungsindex += 1
-    print (messungskopie)
     tabelle = [['Messung']]
     for messgroesse in messgroessen:
         tabelle[0].append(messgroesse[0])
