@@ -52,6 +52,7 @@ def input_with_type_check(printstring='',input_type='str',errormsg='Error',escap
                 return None
     else:
         return escape_sequence
+
 #------------------------------------------------------------------------------
 def max_length_of_column(table):
     maxlengthlist = []
@@ -64,9 +65,10 @@ def max_length_of_column(table):
 #------------------------------------------------------------------------------
 
 
-
 ################################# Main code ###################################
-print ("Sie haben ein neues Experiment begonnen.\n")
+
+
+print ("Sie haben ein neues Experiment begonnen.")
 # TODO We still need to collect data about the experiment such as name of the experimentator date and time and so on
 
 # Now before the exeriment we collect metadata about it and store it in a dict.
