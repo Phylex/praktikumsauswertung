@@ -49,13 +49,13 @@ def pivot_table(table):
 
 #------------------------------------------------------------------------------
 def transformcolumns_to_numpy_array(table):
-    transformed_table = np.array([])
+    transformed_table = []
     for column in table:
+        print (column)
         try:
-            np.array(column,dtype=np.float64)
-            np.append(transformed_table,colums)
+            transformed_table = np.append(transformed_table,column)
         except:
-            np.append(transformed_table,np.array([]))
+            transformed_table
     return transformed_table
 
 #------------------------------------------------------------------------------
@@ -66,15 +66,15 @@ def transform_data_into_usable_format(table):
     table_pivoted = pivot_table(table)
     timestamps = []
     for timestamp in table_pivoted[-1]:
-        timestamps.append(dateparser.parse(timestamp)
-    del messdatenpivoted[-1]
-    new_table = transformcolumns_to_numpy_array(table)
-    return {str(table):new_table,'timestamps':timestamps}
+        timestamps.append(dateparser.parse(timestamp))
+    del table_pivoted[-1]
+    new_table = transformcolumns_to_numpy_array(table_pivoted)
+    return {'messungen':new_table,'timestamps':timestamps}
 
 #------------------------------------------------------------------------------
 def calculate_basicstatistics(table):
     basicstats = np.array([])
-    for coulumn in table:
+    for column in table:
         standardabweichung = np.std(column)
         varianz = np.var(column)
         mittelwert = np.mean(column)
@@ -90,10 +90,12 @@ if __name__ == "__main__":
     if data_from_experiment is None:
         quit()
     # we now have parsed a valid JSON file and are going to add the variables to the locals()
-    locals().update(data_from_experiment)
     # if the file imported is a file built by the Messung.py we where will be following variables
         #messungen
         #messgroessen
         #metadaten
-   transformed_measurements = transform_data_into_usable_format(messungen)
-   
+    locals().update(data_from_experiment)
+    transformed_measurements = transform_data_into_usable_format(messungen)
+    basicstats = calculate_basicstatistics(transformed_measurements)
+    print (transformed_measurements)
+    print (basicstats)
