@@ -71,12 +71,13 @@ def transform_data_into_usable_format(table):
 
 #------------------------------------------------------------------------------
 def calculate_basicstatistics(table):
-    basicstats = np.array([])
+    basicstats = []
     for column in table:
         standardabweichung = np.std(column)
         varianz = np.var(column)
         mittelwert = np.mean(column)
-        basicstats = np.append([mittelwert,varianz,standardabweichung],basicstats,axis=0)
+        basicstats.append([mittelwert,varianz,standardabweichung])
+    basicstats = np.array(basicstats)
     return basicstats
 
 #------------------------------------------------------------------------------
@@ -94,6 +95,6 @@ if __name__ == "__main__":
         #metadaten
     locals().update(data_from_experiment)
     transformed_measurements = transform_data_into_usable_format(messungen)
-    basicstats = calculate_basicstatistics(transformed_measurements)
-    print (transformed_measurements)
+    locals().update(transformed_measurements)
+    basicstats = calculate_basicstatistics(messungen)
     print (basicstats)
