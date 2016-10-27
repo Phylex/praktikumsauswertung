@@ -33,9 +33,12 @@ def open_json_file(filepath):
     # from here on we regard the file as open
     # we now will atempt to read the file assuming it is a json file
     try:
-         return json.load(Experimentfile)
+         data = json.load(Experimentfile)
+         Experimentfile.close()
+         return data
     except JSONDecodeError:
         print ('Das angegebene File ist kein JSON encoded File')
+        Experimentfile.close()
         return None
 
 #------------------------------------------------------------------------------
@@ -54,6 +57,20 @@ def transformcolumns_to_numpy_array(table):
         except:
             np.append(transformed_table,np.array([]))
     return transformed_table
+
+#------------------------------------------------------------------------------
+
+# Here we pivot the table, Split the table into measured data and timestamps and then transform the measured data into 
+# numpy array format to use the ascociated funktions later on
+def transform_data_into_usable_format(table):
+    table_pivoted = pivot_table(table)
+    timestamps = []
+    for timestamp in table_pivoted[-1]:
+        timestamps.append(dateparser.parse(timestamp)
+    del messdatenpivoted[-1]
+    new_table = transformcolumns_to_numpy_array(table)
+    return {str(table):new_table,'timestamps':timestamps}
+
 #------------------------------------------------------------------------------
 def calculate_basicstatistics(table):
     basicstats = np.array([])
@@ -62,6 +79,7 @@ def calculate_basicstatistics(table):
         varianz = np.var(column)
         mittelwert = np.mean(column)
         np.append([mittelwert,varianz,standardabweichung],basicstats)
+    return basicstats
 
 #------------------------------------------------------------------------------
 ################################## Main Code ##################################
@@ -77,20 +95,5 @@ if __name__ == "__main__":
         #messungen
         #messgroessen
         #metadaten
-    #now we heve the local variables we will split the messungen tabelle into the columns
-    # we will have to pivot the table to do simple statistical methods on it 
-    messdatenpivoted = pivot_table(messungen)
-    # now the messdaten are pivoted we have to convert the time from a string into something useful
-    # we split the list of Messungen into the data and the timestamp so we can convert the rest of the
-    # values into a numpy array so now messzeiten and messdatenpivoted exist
-    messzeiten = []
-    for timestamp in messdatenpivoted[-1]:
-        timeobject = dateparser.parse(timestamp)
-        messzeiten.append(timeobject)
-    del messdatenpivoted[-1]
-    #DEBUG
-    print (messzeiten)
-    print (messdatenpivoted)
-    # we rename the messungen and 
-    messungen = transformcolumns_to_numpy_array(messdatenpivoted)
-    print (messungen)
+   transformed_measurements = transform_data_into_usable_format(messungen)
+   
