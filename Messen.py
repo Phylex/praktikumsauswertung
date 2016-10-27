@@ -12,7 +12,7 @@ import numpy as np
 import time
 from datetime import datetime
 ################################# Version info ################################
-version = 0.0
+version = 0.5
 
 ################################# User interface Strings ######################
 eingabefehler = 'Keine gueltige eingabe'
@@ -70,7 +70,10 @@ def max_length_of_column(table):
 
 print ("Sie haben ein neues Experiment begonnen.")
 # TODO We still need to collect data about the experiment such as name of the experimentator date and time and so on
-
+# Prompt the user for the Name of the Experiment to put in the Filename
+Name_of_experiment = None
+while Name_of_experiment is None:
+    Name_of_experiment = input_with_type_check('Bitte geben Sie den Namen der Messung an:','str','Error','Unbenannt')
 # Now before the exeriment we collect metadata about it and store it in a dict.
 print ("Bitte geben Sie nun die zu messenden Groessen ein (z.B. Spannung, Strom ...)\n")
 
@@ -175,7 +178,7 @@ for metadatum in metadaten:
 metadaten = komprimierte_metadaten
 
 # last thing to do is write the collected data into a file using json
-filename = time.strftime('%Y-%m-%d-%H%M-Experiment') 
+filename = time.strftime('%Y-%m-%d-%H%M-'+Name_of_experiment) 
 with open(filename,'w') as file:
     json.dump({'messungen':messungen,'messgroessen':messgroessen,'metadaten':metadaten},file)
 
