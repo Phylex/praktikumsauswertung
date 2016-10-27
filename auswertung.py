@@ -49,13 +49,11 @@ def pivot_table(table):
 
 #------------------------------------------------------------------------------
 def transformcolumns_to_numpy_array(table):
-    transformed_table = []
     for column in table:
-        print (column)
         try:
-            transformed_table = np.append(transformed_table,column)
-        except:
-            transformed_table
+            transformed_table = np.array(table)
+        except ValueError:
+            return None
     return transformed_table
 
 #------------------------------------------------------------------------------
@@ -78,7 +76,7 @@ def calculate_basicstatistics(table):
         standardabweichung = np.std(column)
         varianz = np.var(column)
         mittelwert = np.mean(column)
-        np.append([mittelwert,varianz,standardabweichung],basicstats)
+        basicstats = np.append([mittelwert,varianz,standardabweichung],basicstats,axis=0)
     return basicstats
 
 #------------------------------------------------------------------------------
