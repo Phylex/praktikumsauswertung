@@ -69,6 +69,7 @@ def transform_data_into_usable_format(table):
     new_table = transformcolumns_to_numpy_array(table_pivoted)
     return {'messungen':new_table,'timestamps':timestamps}
 
+# calculates basic statistics (mittelwert varianz standardabweichung)
 #------------------------------------------------------------------------------
 def calculate_basicstatistics(table):
     basicstats = []
@@ -81,20 +82,27 @@ def calculate_basicstatistics(table):
     return basicstats
 
 #------------------------------------------------------------------------------
+def gauss_funktion(x_werte,mittelwert,varianz):
+    return (1/(np.sqrt(varianz)*2*np.pi)*np.exp(-(1/2)*((x_werte-mittelwert)/np.sqrt(varianz))**2))
+
+#------------------------------------------------------------------------------
 ################################## Main Code ##################################
 # this can also be used as a module so we have to put the main code in here 
 if __name__ == "__main__":
+#================================= file input =================================
     data_from_experiment = open_json_file(sys.argv[1])
     # here if the file returned is not a json we terminate the program
     if data_from_experiment is None:
         quit()
+#================================= formating foo ==============================
     # we now have parsed a valid JSON file and are going to add the variables to the locals()
-    # if the file imported is a file built by the Messung.py we where will be following variables
-        #messungen
-        #messgroessen
-        #metadaten
     locals().update(data_from_experiment)
     transformed_measurements = transform_data_into_usable_format(messungen)
+    # now we overwrite the old variables with the transformed ones
     locals().update(transformed_measurements)
+
+#================================= statistical analysis =======================
     basicstats = calculate_basicstatistics(messungen)
-    print (basicstats)
+    filename = time.strftime('%Y-%m-%d-%H%M-'+Name_of_experiment+'-Auswertung') 
+    with open(filename,'w') as file:
+        json.dump({'statistical_data':basicstats},file)
