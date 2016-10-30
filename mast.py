@@ -136,9 +136,9 @@ def parse(string):
         i+=1
     if operator != None:
         if operator == '+':
-            return AdditionNode(parse(string[0:i]), parse(string[i+1:]))
+            return AdditionNode(parse(string[0:position]), parse(string[position+1:]))
         elif operator == '-':
-            return SubtractionNode(parse(string[0:i]), parse(string[i+1:]))
+            return SubtractionNode(parse(string[0:position]), parse(string[position+1:]))
         elif operator == '*':
             return MultiplicationNode(parse(string[0:position]), parse(string[position+1:]))
         elif operator == '/':
