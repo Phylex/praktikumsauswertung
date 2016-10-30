@@ -12,6 +12,7 @@ import json
 import numpy as np
 import sys
 import dateutil.parser as dateparser
+import time
 #================================= Statical Stuff =============================
 
 #================================= Funktionen =================================
@@ -78,14 +79,21 @@ def calculate_basicstatistics(table):
         varianz = np.var(column)
         mittelwert = np.mean(column)
         basicstats.append([mittelwert,varianz,standardabweichung])
-    basicstats = np.array(basicstats)
     return basicstats
 
+# here the funktion plots a gaussian curve for the produced data
 #------------------------------------------------------------------------------
 def gauss_funktion(x_werte,mittelwert,varianz):
     return (1/(np.sqrt(varianz)*2*np.pi)*np.exp(-(1/2)*((x_werte-mittelwert)/np.sqrt(varianz))**2))
 
+# this funktion adapts the left and right edge of the plotted area to the relavant of the data
 #------------------------------------------------------------------------------
+def graph_width(measurement):
+    span = max(measurement) - min(measurement)
+    minimum = min(measurement) - 0.2*span
+    maximum = max(measurement) + 0.2 *span
+    return np.linspace(minimum,maximum,2000)
+
 ################################## Main Code ##################################
 # this can also be used as a module so we have to put the main code in here 
 if __name__ == "__main__":
@@ -103,6 +111,6 @@ if __name__ == "__main__":
 
 #================================= statistical analysis =======================
     basicstats = calculate_basicstatistics(messungen)
-    filename = time.strftime('%Y-%m-%d-%H%M-'+Name_of_experiment+'-Auswertung') 
+    filename = time.strftime('%Y-%m-%d-%H%M-'+sys.argv[1]+'-Auswertung') 
     with open(filename,'w') as file:
         json.dump({'statistical_data':basicstats},file)
