@@ -120,7 +120,7 @@ def parse(string):
             position = i
             operator = '+'
             break
-        elif string[i] = '-':
+        elif string[i] == '-':
             position = i
             operator = '-'
             break
@@ -130,17 +130,19 @@ def parse(string):
         elif string[i] == '/' and operator != '*':
             position = i
             operator = '/'
-        elif string[i] == '^'
+        elif string[i] == '^':
             position = i
             operator 
         i+=1
     if operator != None:
         if operator == '+':
-            return AddNode(parse(string[0:i]), parse(string[i+1:]))
+            return AdditionNode(parse(string[0:i]), parse(string[i+1:]))
+        elif operator == '-':
+            return SubtractionNode(parse(string[0:i]), parse(string[i+1:]))
         elif operator == '*':
-            return MulNode(parse(string[0:position]), parse(string[position+1:]))
+            return MultiplicationNode(parse(string[0:position]), parse(string[position+1:]))
         elif operator == '/':
-            return DivNode(parse(string[0:position]), parse(string[position+1:]))
+            return DivisionNode(parse(string[0:position]), parse(string[position+1:]))
         elif operator == '^':
             return ExponentNode(parse(string[0:position]), parse(string[position+1:]))
     i = 0
