@@ -49,7 +49,7 @@ class AdditionNode(Node):
     def derive(self):
         return AdditionNode(self.leftside.derive(), self.rightside.derive())
     def __str__(self):
-        return '('+str(self.leftside)+'+'+str(self.rightside)')'
+        return '('+str(self.leftside)+'+'+str(self.rightside)+')'
 
 # This node is the representation of the Subtraction
 class SubtractionNode(Node):
@@ -59,7 +59,7 @@ class SubtractionNode(Node):
     def derive(self):
         return SubtractionNode(minuend.derive(),subtrahend.derive())
     def __str__(self):
-        return '('+str(self.leftside)+'-'+str(self.rightside)')'
+        return '('+str(self.leftside)+'-'+str(self.rightside)+')'
 
 # This node is the Representation of the Multiplication
 class MultiplicationNode(Node):
@@ -71,7 +71,7 @@ class MultiplicationNode(Node):
         right = MultiplicationNode(self.leftside, self.rightside.derive())
         return AdditionNode(left,right)
     def __str__(self):
-        return '('+str(self.leftside)+'*'+str(self.rightside)')'
+        return '('+str(self.leftside)+'*'+str(self.rightside)+')'
 
 # This Node is the Representation of the Division
 class DivisionNode(Node):
@@ -83,7 +83,7 @@ class DivisionNode(Node):
         q = MultiplicationNode(q,q)
         return DivisionNode(p,q)
     def __str__(self):
-        return '('+str(self.p)+'/'+str(self.q)')'
+        return '('+str(self.p)+'/'+str(self.q)+')'
 
 class NaturalLogarithmNode(Node):
     def __init__(self, input):
@@ -98,11 +98,11 @@ class ExponentNode(Node):
         self.base = right
         self.exponent = left
     def derive(self):
-        firstpart = MultiplicationNode(self.exponent,MultiplicationNode(ExponentNode(self.base,SubtractionNode(exponent,1)),self.base.derive())
+        firstpart = MultiplicationNode(self.exponent,MultiplicationNode(ExponentNode(self.base,SubtractionNode(exponent,1)),self.base.derive()))
         secondpart = MultiplicationNode(MultiplicationNode(ExponentNode(self.base,self.exponent),NaturalLogarithmNode(self.base)),self.exponent.derive())
         return AdditionNode(firstpart,secondpart)
     def __str__(self):
-        return '('+str(self.base)+'^'+str(self.exponent)')'
+        return '('+str(self.base)+'^'+str(self.exponent)+')'
 #================================= End of Subclasses===========================
 
 ################################## End  of Tree Structure #####################
