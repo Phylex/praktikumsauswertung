@@ -13,9 +13,49 @@ import numpy as np
 import sys
 import dateutil.parser as dateparser
 import time
+import csv
 #================================= Statical Stuff =============================
+einheitenpraefixe = {-15:'f',-12:'p',-9:'n',-6:'micro',-3:'m',-2:'c',-1:'d',0:'',2:'h',3:'k',6:'M',9:'G',12:'T',15:'Ex'}
 
 #================================= Funktionen =================================
+#------------------------------------------------------------------------------
+def open_picoscope_csv(filepath):
+    '''opens the file given as argument, trys to read it and if it is valid it returns the data and metadata.
+       else it returns None. if the filepath is wrong it asks for a valid one'''
+    try:
+        Experimentfile = open(filepath, 'r')
+    except FileNotFoundError:
+        file = None
+        while (file != 'open'):
+            try:
+                file = input('Bitte geben Sie den Pfad zur Datei an:')
+                Experimentfile = open(file, 'r')
+                file = 'open'
+            except FileNotFoundError:
+                file = None
+    #from here on out we will regard the file as open
+    #we now try to open the file and read it
+    try:
+        csvdata = csv.reader(Experimentfile)
+        data = []
+        for i,row in enumerate(csvdata):
+            for j,column in enumerate(row):
+                if i == 0:
+                    data.append([])
+                    data[j].append(column)
+                elif i == 1:
+                    data[j].append(column[1:-1]) 
+                elif i == 2:
+                    pass
+                else:
+                    data[j].append(float(column))
+        Experimentfile.close()
+        return data
+    except:
+        print ('Das angegebene File ist kein CSV encoded File')
+        Experimentfile.close()
+        return None
+
 #------------------------------------------------------------------------------
 # This funktion trys to decode a file given as first argument on the commandline and of that fails it 
 # prompts for a valid filepath
@@ -73,9 +113,10 @@ def transform_data_into_usable_format(table):
 # calculates basic statistics (mittelwert varianz standardabweichung)
 #------------------------------------------------------------------------------
 def calculate_basicstatistics(table):
+    '''This funktion produces a list os lists with [[mittelwert,varianz,Standardabweichung]]'''
     basicstats = []
     for column in table:
-        standardabweichung = np.std(column)
+        standardabweichung = np.std(column,ddof=1)
         varianz = np.var(column)
         mittelwert = np.mean(column)
         basicstats.append([mittelwert,varianz,standardabweichung])
@@ -84,23 +125,24 @@ def calculate_basicstatistics(table):
 # here the funktion plots a gaussian curve for the produced data
 #------------------------------------------------------------------------------
 def gauss_funktion(x_werte,mittelwert,varianz):
-    return (1/(np.sqrt(varianz)*2*np.pi)*np.exp(-(1/2)*((x_werte-mittelwert)/np.sqrt(varianz))**2))
+        return (1/(np.sqrt(varianz)*2*np.pi)*np.exp(-(1/2)*((x_werte-mittelwert)/np.sqrt(varianz))**2))
 
 # this funktion adapts the left and right edge of the plotted area to the relavant of the data
 #------------------------------------------------------------------------------
-def graph_width(measurement):
+def graph_width(measurement,overshute=0.2):
     span = max(measurement) - min(measurement)
-    minimum = min(measurement) - 0.2*span
-    maximum = max(measurement) + 0.2 *span
+    minimum = min(measurement) - overshute*span
+    maximum = max(measurement) + overshute*span
     return np.linspace(minimum,maximum,2000)
 
 ################################## Main Code ##################################
-# this can also be used as a module so we have to put the main code in here 
+# this can also be used as a module so we have to put the main code in here
 if __name__ == "__main__":
 #================================= file input =================================
     data_from_experiment = open_json_file(sys.argv[1])
     # here if the file returned is not a json we terminate the program
     if data_from_experiment is None:
+        print ("The given file isnot valid.")
         quit()
 #================================= formating foo ==============================
     # we now have parsed a valid JSON file and are going to add the variables to the locals()
@@ -111,6 +153,6 @@ if __name__ == "__main__":
 
 #================================= statistical analysis =======================
     basicstats = calculate_basicstatistics(messungen)
-    filename = time.strftime('%Y-%m-%d-%H%M-'+sys.argv[1]+'-Auswertung') 
+    filename = time.strftime('%Y-%m-%d-%H%M-'+sys.argv[1]+'-Auswertung')
     with open(filename,'w') as file:
         json.dump({'statistical_data':basicstats},file)
