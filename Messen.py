@@ -182,5 +182,4 @@ filename = time.strftime('%Y-%m-%d-%H%M-'+Name_of_experiment)
 with open(filename,'w') as file:
     json.dump({'Name_of_experiment':Name_of_experiment,'messungen':messungen,'messgroessen':messgroessen,'metadaten':metadaten},file)
 
-
 ####################################### THE END ###############################

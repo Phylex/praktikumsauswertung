@@ -24,7 +24,8 @@ if data_from_experiment is None:
     print ("The given file isnot valid.")
     quit()
 
-# the variables are made accessable
+# the variables are made accessable and messungen is transformed so that it is
+# easyer to calculate the statistical data
 locals().update(data)
 messungen = au.transform_data_into_usable_format(messungen)
 locals().update(messungen)
