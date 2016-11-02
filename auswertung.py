@@ -97,10 +97,9 @@ def transformcolumns_to_numpy_array(table):
             return None
     return transformed_table
 
-#------------------------------------------------------------------------------
-
 # Here we pivot the table, Split the table into measured data and timestamps and then transform the measured data into
 # numpy array format to use the ascociated funktions later on
+#------------------------------------------------------------------------------
 def transform_data_into_usable_format(table):
     table_pivoted = pivot_table(table)
     timestamps = []
@@ -135,6 +134,48 @@ def graph_width(measurement,overshute=0.2):
     maximum = max(measurement) + overshute*span
     return np.linspace(minimum,maximum,2000)
 
+# this funktion creates a table from the data input
+#------------------------------------------------------------------------------
+def Create_Messdaten_tabellen(tabellenname,messgroessen,messungen,vertline=False,horline=False,alignment='center'):
+    alignmenttable = {'center':'c','left':'l','right':'r'}
+    # first we need to calculate the neccesary formatstrings for the table
+    if vertline:
+        columnformatstring = '| '
+    else:
+        columnformatstring = ''
+    for elem in messgroessen:
+        columnformatstring += ' '+alignmenttable[alignment]
+        if vertline:
+            columnformatstring +=' |'
+    # now we open the file start printing to it.
+    tablefile = open(tabellenname, 'w')
+    # we write the first line specifing the table environment and setting the format
+    tablefile.write('\\begin{tabular}{'+columnformatstring+'}\n')
+    if horline:
+        tablefile.write(' \\hline\n')
+    # print the first row of the table
+    for messgroesse in messgroessen:
+        if messgroesse is messgroessen[-1]:
+            tablefile.write(' '+str(messgroesse[0])+'\\\\\n') # TODO this could use expanding to feature Horizontal lines
+        else:
+            tablefile.write(str(elem[0])+' &')  # TODO this could use expanding to feature Horizontal lines
+    # add a plitting line between head and body of the table
+    tablefile.write(' \\hline\n')
+    # print the rest of the table
+    for messung in messungen:
+        for elem in messung:
+            if elem is messung[-1]:
+                tablefile.write(' '+str(elem)+'\\\\\n') # TODO this could use expanding to feature Horizontal lines
+            else:
+                tablefile.write(' '+str(elem)+' &')  # TODO this could use expanding to feature Horizontal lines
+    # we create the lower horizontal line
+    if horline:
+        tablefile.write(' \\hline\n')
+    #write the last line of the file closing it of
+    tablefile.write('\\end{taular}')
+    #now just close it
+    tablefile.close()
+#------------------------------------------------------------------------------
 ################################## Main Code ##################################
 # this can also be used as a module so we have to put the main code in here
 if __name__ == "__main__":
