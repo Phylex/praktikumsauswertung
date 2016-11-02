@@ -17,6 +17,8 @@ import csv
 #================================= Statical Stuff =============================
 einheitenpraefixe = {-15:'f',-12:'p',-9:'n',-6:'micro',-3:'m',-2:'c',-1:'d',0:'',2:'h',3:'k',6:'M',9:'G',12:'T',15:'Ex'}
 
+# TODO write a dict for various latex commands so it can be printed into a file more easily
+
 #================================= Funktionen =================================
 #------------------------------------------------------------------------------
 def open_picoscope_csv(filepath):
@@ -97,9 +99,9 @@ def transformcolumns_to_numpy_array(table):
             return None
     return transformed_table
 
+#------------------------------------------------------------------------------
 # Here we pivot the table, Split the table into measured data and timestamps and then transform the measured data into
 # numpy array format to use the ascociated funktions later on
-#------------------------------------------------------------------------------
 def transform_data_into_usable_format(table):
     table_pivoted = pivot_table(table)
     timestamps = []
@@ -109,8 +111,8 @@ def transform_data_into_usable_format(table):
     new_table = transformcolumns_to_numpy_array(table_pivoted)
     return {'messungen':new_table,'timestamps':timestamps}
 
-# calculates basic statistics (mittelwert varianz standardabweichung)
 #------------------------------------------------------------------------------
+# calculates basic statistics (mittelwert varianz standardabweichung)
 def calculate_basicstatistics(table):
     '''This funktion produces a list os lists with [[mittelwert,varianz,Standardabweichung]]'''
     basicstats = []
@@ -121,21 +123,21 @@ def calculate_basicstatistics(table):
         basicstats.append([mittelwert,varianz,standardabweichung])
     return basicstats
 
-# here the funktion plots a gaussian curve for the produced data
 #------------------------------------------------------------------------------
+# here the funktion plots a gaussian curve for the produced data
 def gauss_funktion(x_werte,mittelwert,varianz):
         return (1/(np.sqrt(varianz)*2*np.pi)*np.exp(-(1/2)*((x_werte-mittelwert)/np.sqrt(varianz))**2))
 
-# this funktion adapts the left and right edge of the plotted area to the relavant of the data
 #------------------------------------------------------------------------------
+# this funktion adapts the left and right edge of the plotted area to the relavant of the data
 def graph_width(measurement,overshute=0.2):
     span = max(measurement) - min(measurement)
     minimum = min(measurement) - overshute*span
     maximum = max(measurement) + overshute*span
     return np.linspace(minimum,maximum,2000)
 
-# this funktion creates a table from the data input
 #------------------------------------------------------------------------------
+# this funktion creates a table from the data input
 def Create_Messdaten_tabellen(tabellenname,messgroessen,messungen,vertline=False,horline=False,alignment='center'):
     alignmenttable = {'center':'c','left':'l','right':'r'}
     # first we need to calculate the neccesary formatstrings for the table
@@ -175,7 +177,11 @@ def Create_Messdaten_tabellen(tabellenname,messgroessen,messungen,vertline=False
     tablefile.write('\\end{taular}')
     #now just close it
     tablefile.close()
+
+
 #------------------------------------------------------------------------------
+
+
 ################################## Main Code ##################################
 # this can also be used as a module so we have to put the main code in here
 if __name__ == "__main__":
