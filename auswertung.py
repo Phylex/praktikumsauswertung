@@ -83,7 +83,7 @@ def open_json_file(filepath):
         return None
 
 #------------------------------------------------------------------------------
-# This Funktion turns a list of lists where the inner list is a row into a list of lists where the inner lists 
+# This Funktion turns a list of lists where the inner list is a row into a list of lists where the inner lists
 # is the column
 def pivot_table(table):
     return [[row[i[0]] for row in table] for i in enumerate(table[0])]
@@ -99,7 +99,7 @@ def transformcolumns_to_numpy_array(table):
 
 #------------------------------------------------------------------------------
 
-# Here we pivot the table, Split the table into measured data and timestamps and then transform the measured data into 
+# Here we pivot the table, Split the table into measured data and timestamps and then transform the measured data into
 # numpy array format to use the ascociated funktions later on
 def transform_data_into_usable_format(table):
     table_pivoted = pivot_table(table)
