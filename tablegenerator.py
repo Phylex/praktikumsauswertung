@@ -48,17 +48,25 @@ def Create_Messdaten_tabellen(tabellenname,messgroessen,messungen,vertline=False
 
     # now we open the file start printing to it.
     tablefile = open(tabellenname, 'w')
+    # we write the first line specifing the table environment and setting the format
     tablefile.write('\\begin{tabular}{'+columnformatstring+'}\n')
     if horline:
         tablefile.write(' \\hline\n')
+    # print the first row of the table
     for elem in messgroessen:
         if elem is messgroessen[-1]:
             tablefile.write(' '+elem[0]+'\\\\\n') # TODO this could use expanding to feature Horizontal lines
         else:
             tablefile.write(elem[0]+' &')  # TODO this could use expanding to feature Horizontal lines
+    # print the rest of the table
     for messung in messungen:
         for elem in messung:
             tablefile.write(' '+elem[0]+' &')  # TODO this could use expanding to feature Horizontal lines
             if elem is messung[-1]:
                 tablefile.write(' '+elem[0]+'\\\\\n') # TODO this could use expanding to feature Horizontal lines
+    # we create the lower horizontal line
+    if horline:
+        tablefile.write(' \\hline\n')
+    #now just close it
+    tablefile.close()
 
