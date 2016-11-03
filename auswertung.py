@@ -1,10 +1,6 @@
 ###############################################################################
-# Use: Dieses File nimmt ein oeffnet ein Experimentenfile und zerlegt es in 
+# Use: Dieses File nimmt ein oeffnet ein Experimentenfile und zerlegt es in
 # Author: Alexander
-#
-#
-#
-#
 ###############################################################################
 
 #================================= Imports ====================================
@@ -15,7 +11,7 @@ import dateutil.parser as dateparser
 import time
 import csv
 #================================= Statical Stuff =============================
-einheitenpraefixe = {-15:'f',-12:'p',-9:'n',-6:'micro',-3:'m',-2:'c',-1:'d',0:'',2:'h',3:'k',6:'M',9:'G',12:'T',15:'Ex'}
+einheitenpraefixe = {-15:'f',-12:'p',-9:'n',-6:'micro',-5:'10^-5',-3:'m',-2:'c',-1:'d',0:'',2:'h',3:'k',6:'M',9:'G',12:'T',15:'Ex'}
 
 # TODO write a dict for various latex commands so it can be printed into a file more easily
 
@@ -46,7 +42,7 @@ def open_picoscope_csv(filepath):
                     data.append([])
                     data[j].append(column)
                 elif i == 1:
-                    data[j].append(column[1:-1]) 
+                    data[j].append(column[1:-1])
                 elif i == 2:
                     pass
                 else:
@@ -59,7 +55,7 @@ def open_picoscope_csv(filepath):
         return None
 
 #------------------------------------------------------------------------------
-# This funktion trys to decode a file given as first argument on the commandline and of that fails it 
+# This funktion trys to decode a file given as first argument on the commandline and of that fails it
 # prompts for a valid filepath
 def open_json_file(filepath):
     try:
@@ -149,18 +145,29 @@ def Create_Messdaten_tabellen(tabellenname,messgroessen,messungen,vertline=False
         columnformatstring += ' '+alignmenttable[alignment]
         if vertline:
             columnformatstring +=' |'
+
     # now we open the file start printing to it.
     tablefile = open(tabellenname+'.tex', 'w')
+
     # we write the first line specifing the table environment and setting the format
     tablefile.write('\\begin{tabular}{'+columnformatstring+'}\n')
     if horline:
         tablefile.write(' \\hline\n')
+
     # print the first row of the table
     for messgroesse in messgroessen:
         if messgroesse is messgroessen[-1]:
             tablefile.write(' '+str(messgroesse[0])+' \\\\\n') # TODO this could use expanding to feature Horizontal lines
         else:
             tablefile.write(' '+str(messgroesse[0])+' &')  # TODO this could use expanding to feature Horizontal lines
+
+    # In the second Row we Specify the the units
+    for messgroesse in messgroessen:
+        if messgroesse == messgroessen[-1]:
+            tablefile.write(' ('+einheitenpraefixe[messgroesse[3]]+messgroesse[1]+') \\\\\n' )
+        else:
+            tablefile.write(' ('+einheitenpraefixe[messgroesse[3]]+messgroesse[1]+') &')
+
     # add a plitting line between head and body of the table
     tablefile.write(' \\hline\n')
     # print the rest of the table
@@ -194,6 +201,7 @@ def import_experiment_data(filepath):
     globals().update(transformed_measurements)
 
 
+#------------------------------------------------------------------------------
 ################################## Main Code ##################################
 # this can also be used as a module so we have to put the main code in here
 if __name__ == "__main__":
