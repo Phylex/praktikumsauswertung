@@ -150,7 +150,7 @@ def Create_Messdaten_tabellen(tabellenname,messgroessen,messungen,vertline=False
         if vertline:
             columnformatstring +=' |'
     # now we open the file start printing to it.
-    tablefile = open(tabellenname, 'w')
+    tablefile = open(tabellenname+'.tex', 'w')
     # we write the first line specifing the table environment and setting the format
     tablefile.write('\\begin{tabular}{'+columnformatstring+'}\n')
     if horline:
