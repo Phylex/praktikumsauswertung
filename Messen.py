@@ -11,6 +11,7 @@ import json
 import numpy as np
 import time
 from datetime import datetime
+import copy
 ################################# Version info ################################
 version = 0.5
 
@@ -114,7 +115,7 @@ while aktuelle_messung[-2] is not 'ende':
     print ('%i. Messung: '%(i+1))
     j = 0
     while j in range(len(messgroessen)):
-        messung = input_with_type_check(messgroessen[j][1]+': ','float',eingabefehler)
+        messung = input_with_type_check(messgroessen[j][0]+' in '+messgroessen[j][1]+': ','float',eingabefehler)
         if(messung != None) and (messung != 'ende'):
             aktuelle_messung.append(messung)
             j += 1
@@ -128,7 +129,7 @@ del messungen[-1]
 print ('Die Messreihe wurde erfolgreich bendet.')
 
 #------------------------------------------------------------------------------
-# In this Part of the Program we want to display the data to the experimentator 
+# In this Part of the Program we want to display the data to the experimentator
 # and let him edit it to correct obvious mistakes.
 
 # Display data
@@ -154,7 +155,7 @@ if answer is 'y' or answer is 'Y':
     print ('\n\nErfasste Daten:')
     print ('================================================================================')
     # now we build a printable table
-    messungskopie = messungen[:]
+    messungskopie = copy.deepcopy(messungen)
     messungsindex = 1
     for messung in messungskopie:
         messung.insert(0,messungsindex)
@@ -178,7 +179,7 @@ for metadatum in metadaten:
 metadaten = komprimierte_metadaten
 
 # last thing to do is write the collected data into a file using json
-filename = time.strftime('%Y-%m-%d-%H%M-'+Name_of_experiment) 
+filename = time.strftime('%Y-%m-%d-%H%M-'+Name_of_experiment)
 with open(filename,'w') as file:
     json.dump({'Name_of_experiment':Name_of_experiment,'messungen':messungen,'messgroessen':messgroessen,'metadaten':metadaten},file)
 
