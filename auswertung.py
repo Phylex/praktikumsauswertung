@@ -142,7 +142,7 @@ def Create_Messdaten_tabellen(tabellenname,messgroessen,messungen,vertline=False
     alignmenttable = {'center':'c','left':'l','right':'r'}
     # first we need to calculate the neccesary formatstrings for the table
     if vertline:
-        columnformatstring = '| '
+        columnformatstring = '|'
     else:
         columnformatstring = ''
     for elem in messgroessen:
@@ -166,7 +166,7 @@ def Create_Messdaten_tabellen(tabellenname,messgroessen,messungen,vertline=False
     # print the rest of the table
     for messung in messungen:
         for i,elem in enumerate(messung):
-            if i == len(messung):
+            if i == (len(messung)-1):
                 tablefile.write(' '+str(elem)+' \\\\\n') # TODO this could use expanding to feature Horizontal lines
             else:
                 tablefile.write(' '+str(elem)+' &')  # TODO this could use expanding to feature Horizontal lines
