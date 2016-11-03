@@ -189,9 +189,9 @@ def import_experiment_data(filepath):
     if data_from_experiment is None:
         print ("The given file isnot valid.")
         quit()
-    locals().update(data_from_experiment)
+    globals().update(data_from_experiment)
     transformed_measurements = transform_data_into_usable_format(messungen)
-    locals().update(transformed_measurements)
+    globals().update(transformed_measurements)
 
 
 ################################## Main Code ##################################
