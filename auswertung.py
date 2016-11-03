@@ -180,6 +180,18 @@ def Create_Messdaten_tabellen(tabellenname,messgroessen,messungen,vertline=False
 
 
 #------------------------------------------------------------------------------
+# this funktion makes changes to the Locals to make the process of importing the
+# JSON File a single command process. Should not be used outside the Praktikums
+# environmant.
+def import_experiment_data(filepath):
+    # try to open the file if not, ask for a filepath that is valid
+    data_from_experiment = open_json_file(filepath)
+    if data_from_experiment is None:
+        print ("The given file isnot valid.")
+        quit()
+    locals().update(data_from_experiment)
+    transformed_measurements = transform_data_into_usable_format(messungen)
+    locals().update(transformed_measurements)
 
 
 ################################## Main Code ##################################
