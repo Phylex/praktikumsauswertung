@@ -165,8 +165,8 @@ def Create_Messdaten_tabellen(tabellenname,messgroessen,messungen,vertline=False
     tablefile.write(' \\hline\n')
     # print the rest of the table
     for messung in messungen:
-        for elem in messung:
-            if elem is messung[-1]:
+        for i,elem in enumerate(messung):
+            if i == len(messung):
                 tablefile.write(' '+str(elem)+' \\\\\n') # TODO this could use expanding to feature Horizontal lines
             else:
                 tablefile.write(' '+str(elem)+' &')  # TODO this could use expanding to feature Horizontal lines
