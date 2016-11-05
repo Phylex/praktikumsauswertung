@@ -1,3 +1,4 @@
-.ipynb_checkpoints
-PlottingMessdaten.ipynb
+*.ipynb_checkpoints
+*.ipynb
 __pycache__
+*.kafe
