@@ -32,7 +32,7 @@ if __name__ == '__main__':
     #we calculate the gaussian Curve from the data
     gaussianXvalues = []
     for i,elem in enumerate(stats):
-        gaussianXvalues.append(au.graph_width(au.messungen[i],overshute=1.5))
+        gaussianXvalues.append(au.graph_width(au.messungen[i],overshute=0.5))
     gaussianCurve = []
     for i,elem in enumerate(stats):
         print (stats[i])
