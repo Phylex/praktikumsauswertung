@@ -10,8 +10,6 @@ import sys
 import dateutil.parser as dateparser
 import time
 import csv
-import kafe
-from kafe import function_library
 #================================= Statical Stuff =============================
 einheitenpraefixe = {-15:'f',-12:'p',-9:'n',-6:'micro',-5:'10^-5',-3:'m',-2:'c',-1:'d',0:'',2:'h',3:'k',6:'M',9:'G',12:'T',15:'Ex'}
 
@@ -123,8 +121,8 @@ def calculate_basicstatistics(table):
 
 #------------------------------------------------------------------------------
 # here the funktion plots a gaussian curve for the produced data
-def gauss_funktion(x_werte,mittelwert,varianz):
-        return (1/(np.sqrt(varianz)*2*np.pi)*np.exp(-(1/2)*((x_werte-mittelwert)/np.sqrt(varianz))**2))
+def gauss_funktion(x_werte,mittelwert,standardabweichung):
+        return (1/(standardabweichung*2*np.pi)*np.exp(-(1/2)*((x_werte-mittelwert)/standardabweichung)**2))
 
 #------------------------------------------------------------------------------
 # this funktion adapts the left and right edge of the plotted area to the relavant of the data
@@ -204,28 +202,6 @@ def import_experiment_data(filepath):
         transformed_measurements['messungen'] = transformed_measurements['messungen'][1:]
     globals().update(transformed_measurements)
 
-
-#------------------------------------------------------------------------------
-# This funktion prepares the data given by the messen.py program
-# we will have the job of Createing a Dataset and then returning it
-def transform_data_into_kafe_Dataset_linear_regression(messgroessen, messungen, experiment_Name):
-    if len(messgroessen) > 2 or len(messgroessen) > 2:
-        return None
-    else:
-        kafedata = kafe.dataset.Dataset(data=[elem for elem in messungen], axis_lables=[messgroesse[0] for messgroesse in messgroessen], axis_units=[ einheitenpraefixe[messgroesse[3]]+messgroesse[1] for messgroesse in messgroessen],basename = experiment_Name)
-        for i, elem in enumerate(messgroessen):
-            kafedata.add_error_source(i,'simple', elem[-1])
-        return kafedata
-
-#------------------------------------------------------------------------------
-# This Funktion will generate a fit object from the dataset built by the fun-
-# ction above the fitting funktion defaults to a 2 parameter linear fit
-def build_kafe_fit_and_plot_object(kafedataset,fitfunktion=kafe.function_library.linear_2par):
-    kafefit = kafe.Fit(kafedataset,fitfunktion)
-    kafefit.do_fit()
-    kafeplot = kafe.Plot(kafefit)
-    kafeplot.plot_all()
-    return [kafefit,kafeplot]
 
 ################################## Main Code ##################################
 # this can also be used as a module so we have to put the main code in here
