@@ -2,6 +2,8 @@ import __future__
 import kafe
 from kafe import function_library
 
+einheitenpraefixe = {-15:'f',-12:'p',-9:'n',-6:'micro',-5:'10^-5',-3:'m',-2:'c',-1:'d',0:'',2:'h',3:'k',6:'M',9:'G',12:'T',15:'Ex'}
+
 #------------------------------------------------------------------------------
 # This funktion prepares the data given by the messen.py program
 # we will have the job of Createing a Dataset and then returning it
