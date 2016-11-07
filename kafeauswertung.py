@@ -11,7 +11,8 @@ def transform_data_into_kafe_Dataset_linear_regression(messgroessen, messungen, 
     if len(messgroessen) > 2 or len(messgroessen) > 2:
         return None
     else:
-        kafedata = kafe.dataset.Dataset(data=[elem for elem in messungen], axis_lables=[messgroesse[0] for messgroesse in messgroessen], axis_units=[ einheitenpraefixe[messgroesse[3]]+messgroesse[1] for messgroesse in messgroessen],basename = experiment_Name)
+        kafedata = kafe.dataset.Dataset(data=[elem for elem in messungen], axis_labels=[messgroesse[0] for messgroesse in messgroessen], axis_units=[ einheitenpraefixe[messgroesse[3]]+messgroesse[1] for messgroesse in messgroessen],title = experiment_Name)
+        print (kafedata)
         for i, elem in enumerate(messgroessen):
             kafedata.add_error_source(i,'simple', elem[-1])
         return kafedata
