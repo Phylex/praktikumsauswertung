@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import collections as col
 
 class messung:
-    """Represents a messreihe and its associated data such as statisticaly relevant data. It also provides Funktions to output that data and transform it into appropriate formats"""
+   """Represents a messreihe and its associated data such as statisticaly relevant data. It also provides Funktions to output that data and transform it into appropriate formats"""
     @staticmethod
     def calculate_gaussian_data(messreihe):
         """Calculates the mean, variance and std. deviation of a list of numbers"""
@@ -33,17 +33,31 @@ class messung:
     def gauss_funktion(x_werte,mittelwert,standardabweichung):
         """calculates the values of a gauss curve characterized by the deviation and mean for every value given in x_werte. returns an array"""
         return (1/(standardabweichung*2*np.pi)*np.exp(-(1/2)*((x_werte-mittelwert)/standardabweichung)**2))
-   
+
     def __init__(self, messgroesse, messreihe, Formelzeichen, messgeraet=None, messfehler=None)
         """Constructor; besides taking given arguments, it allso builds all the necessary stuff for a plotting and a table"""
         self.messreihe = messreihe
         self.messgroesse = messgroesse
         self.Formelzeichen = Formelzeichen
-        self.messgeraet = messgeraet 
+        self.messgeraet = messgeraet
         self.messfehler = messfehler
         self.std_dev, self.var, self.mean = calculate_gaussian_data(self.messreihe)
-        self.plot = col.namedtuple(plot, 'x_values, gauss, hist, axis1, axis2, figure')
+        self.plot = col.namedtuple(plot, 'x_values, gauss, hist)
         self.plot.x_values = graph_width(self.messreihe)
-        self.plot.gauss = gauss_funktion(self.x_values, self.mean, self.std_dev)
-        self.plot.hist = plt.hist(messreihe)
-#   TODO not finished yet 
+        self.plot.gauss = col.namedtuple(gauss ,'function, color, label, linestyle')
+        self.plot.gauss.function= gauss_funktion(self.x_values, self.mean, self.std_dev)
+        self.plot.hist = col.namedtuple(hist, 'bins, align, log, color, label')
+        self.plot.hist.bins = 20
+        self.plot.hist.align = 'mid'
+        self.plot.hist.log = False
+        self.plot.hist.color = 'green'
+        if type(messgroesse) == str:
+            self.plot.hist.label = messgroesse
+            self.plpt.gauss.label = 'Gaussian curve of '+messgroesse
+        else:
+            self.plot.hist.label = None
+            self.plot.gauss.label = None
+
+    @classmethod
+    def set_hist_parameter(bins=10,align='mid',log=False,color='green',label=None)
+        self.plot.hist = self.messreihe,bins=bins,color=color,align=align,log=log,label=label)
