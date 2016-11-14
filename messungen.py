@@ -113,6 +113,10 @@ class messung:
 
     def __init__(self, messgroesse, messreihe, Formelzeichen, einheit, messgeraet=None, messfehler=None, groessenordnung=0):
         """Constructor; besides taking given arguments, it allso builds all the necessary stuff for a plotting and a table"""
+        # we first costruct the named tuples we need for the object
+        gaussstruct = col.namedtuple('gauss',['function', 'x_values', 'color', 'label', 'linestyle'])
+        histstruct = col.namedtuple('hist', ['bins', 'align', 'log', 'color', 'label'])
+        plotstruct = col.namedtuple('plot', ['gauss','hist'])
         self.messreihe = messreihe
         self.messgroesse = messgroesse
         self.Formelzeichen = Formelzeichen
@@ -121,23 +125,14 @@ class messung:
         self.groessenordnung = groessenordnung
         self.einheit = einheit
         self.std_dev, self.var, self.mean = self.calculate_gaussian_data(self.messreihe)
-        self.plot = col.namedtuple('plot', 'gauss, hist')
-        self.plot.gauss = col.namedtuple('gauss' ,'function, x_values, color, label, linestyle')
-        self.plot.gauss.x_values = self.graph_width(self.messreihe)
-        self.plot.gauss.function= self.gauss_funktion(self.plot.gauss.x_values, self.mean, self.std_dev)
-        self.plot.gauss.color = 'blue'
-        self.plot.linestyle = '-'
-        self.plot.hist = col.namedtuple('hist', 'bins, align, log, color, label')
-        self.plot.hist.bins = 20
-        self.plot.hist.align = 'mid'
-        self.plot.hist.log = False
-        self.plot.hist.color = 'green'
+        # now the structs are filled and inserted into oneanother
         if type(messgroesse) == str:
-            self.plot.hist.label = messgroesse
-            self.plot.gauss.label = 'Gaussian curve of '+messgroesse
+            gauss = gaussstruct(self.gauss_funktion(self.graph_width(self.messreihe),self.mean,self.std_dev),self.graph_width(messreihe),'blue','Gaussian curve of '+messgroesse,'-')
+            hist = histstruct(20,'mid',False,'green',messgroesse)
         else:
-            self.plot.hist.label = None
-            self.plot.gauss.label = None
+            gauss = gaussstruct(self.gauss_funktion(self.graph_width(self.messreihe),self.mean,self.std_dev),self.graph_width(messreihe),'blue','','-')
+            hist = histstruct(20,'mid',False,'green','')
+        self.plot = plotstruct(gauss,hist)
 
     # Seters and getters from here on
     @classmethod
@@ -184,4 +179,10 @@ class messung:
                 self.plot.gauss.color = kwargs[kw]
             elif str(kw) == 'label':
                 self.plot.gauss.label = kwargs[kw]
+    #encoder and decoder for json
+    @classmethod
+    def encodeJSON():
+        """Encodes all the parts of the object into a dict, so it can be written into a JSON file by the json library"""
+        plotobject = 
+        objectSerialisation = {'object':'messung','messreihe':self.messreihe,'messgroesse':self.messgroesse,'Formelzeichen':self.Formelzeichen,'messgeraet':self.messgeraet,'messfehler':self.messfehler,'groessenordnung':self.groessenordnung,'einheit':self.einheit,'plot':self.plot._asdict()}
 
