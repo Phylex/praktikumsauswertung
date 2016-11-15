@@ -7,9 +7,7 @@
 ###############################################################################
 
 ################################## imports ####################################
-import json
 import numpy as np
-import matplotlib.pyplot as plt
 import collections as col
 
 ###############################################################################
@@ -28,7 +26,7 @@ def create_messdaten_tabellen(tabellenname: str, *arguments, vertline=False, hor
     else:
         columnformatstring = ''
     for elem in arguments:
-        if type(elem) is messung:
+        if type(elem) is Messung:
             columnformatstring += ' ' + alignmenttable[alignment]
             if vertline:
                 columnformatstring += ' |'
@@ -43,7 +41,7 @@ def create_messdaten_tabellen(tabellenname: str, *arguments, vertline=False, hor
 
     # print the first row of the table
     for elem in arguments:
-        if type(elem) is messung:
+        if type(elem) is Messung:
             if elem is arguments[-1]:
                 tablefile.write(' ' + str(elem.messgroesse) + ' \\\\\n')
             else:
@@ -51,7 +49,7 @@ def create_messdaten_tabellen(tabellenname: str, *arguments, vertline=False, hor
 
     # In the second Row we Specify the the units
     for elem in arguments:
-        if type(elem) is messung:
+        if type(elem) is Messung:
             if elem is arguments[-1]:
                 tablefile.write(' (' + einheitenpraefixe[elem.groessenordnung] + elem.einheit + ') \\\\\n')
             else:
@@ -62,33 +60,28 @@ def create_messdaten_tabellen(tabellenname: str, *arguments, vertline=False, hor
 
     maxlength = 0
     for elem in arguments:
-        if type(elem) is messung:
+        if type(elem) is Messung:
             if len(elem.messreihe) > maxlength:
                 maxlength = len(elem.messreihe)
 
     # print the rest of the table
     for i in range(maxlength):
         for elem in arguments:
-            if type(elem) is messung:
+            if type(elem) is Messung:
                 if elem is arguments[-1]:
                     try:
-                        tablefile.write(' ' + str(
-                            elem.messreihe[i]) + ' \\\\\n')  # TODO this could use expanding to feature Horizontal lines
+                        tablefile.write(' ' + str(elem.messreihe[i]) + ' \\\\\n')
                     except IndexError:
                         tablefile.write(' - \\\\\n')
                 else:
                     try:
-                        tablefile.write(' ' + str(
-                            elem.messreihe[i]) + ' &')  # TODO this could use expanding to feature Horizontal lines
+                        tablefile.write(' ' + str(elem.messreihe[i]) + ' &')
                     except IndexError:
                         tablefile.write(' - &')
-
-    # we create the lower horizontal line
-    if horline:
-        tablefile.write(' \\hline\n')
-    # write the last line of the file closing it of
+        if horline:
+            tablefile.write(' \\hline\n')
+    # write the last line of the file ending it
     tablefile.write('\\end{tabular}')
-    # now just close it
     tablefile.close()
 
 
@@ -96,10 +89,12 @@ def decodemessungenfromjson(messungsdict: dict):
     try:
         if messungsdict['object'] == 'messung':
             messungsobject = Messung(messungsdict['experiment'], messungsdict['messgroesse'], messungsdict['messreihe'],
-                                     messungsdict['formelzeihen'], messungsdict['einheit'], messungsdict['messgeraet'],
+                                     messungsdict['formelzeichen'], messungsdict['einheit'], messungsdict['messgeraet'],
                                      messungsdict['messfehler'], messungsdict['groessenordnung'])
-            messungsobject.set_gauss_parameter(messungsdict['gauss'])
-            messungsobject.set_hist_parameter(messungsdict['hist'])
+            for key, value in iter(messungsdict['gauss']):
+                messungsobject.set_gauss_parameter(key=value)
+            for key, value in iter(messungsdict['hist']):
+                messungsobject.set_hist_parameter(key=value)
             return messungsobject
         else:
             return None
@@ -112,7 +107,7 @@ class Messung:
     output that data and transform it into appropriate formats"""
 
     @staticmethod
-    def graph_width(measurement: np.array, overshoot: float = 0.2) -> np.array:
+    def graph_width(measurement: list, overshoot: float = 0.2) -> np.array:
         """Determines the Interval generated to plot over from the given data"""
         span = max(measurement) - min(measurement)
         minimum = min(measurement) - overshoot * span
@@ -197,7 +192,7 @@ class Messung:
         """Set the parameters for the plot of the gauss-function"""
         for kw in kwargs.keys():
             if str(kw) == 'relwidth':
-                self.plot.gauss.x_values = graph_width(self.messreihe, kwargs[kw])
+                self.plot.gauss.x_values = self.graph_width(self.messreihe, kwargs[kw])
             elif str(kw) == 'linestyle':
                 self.plot.gauss.linestyle = kwargs[kw]
             elif str(kw) == 'color':
@@ -206,16 +201,15 @@ class Messung:
                 self.plot.gauss.label = kwargs[kw]
 
     # encoder and decoder for json
+    @property
     def encodejson(self):
         """Encodes all the parts of the object into a dict, so it can be written into a JSON file by the json library"""
-        gaussinfo = []
+        gauss = []
         for i,value in enumerate(self.plot.gauss):
-           gaussinfo.append((self.plot.gauss._fields[i],value))
-        histinfo = []
+           gauss.append((self.plot.gauss._fields[i],value))
+        hist = []
         for i,value in enumerate(self.plot.hist):
-            histinfo.append((self.plot.hist._fields[i],value))
-        gauss = dict(gaussinfo)
-        hist = dict(histinfo)
+            hist.append((self.plot.hist._fields[i],value))
         plotfields = self.plot._fields
         object_serialisation = {'object': 'messung', 'experiment': self.experiment, 'messreihe': self.messreihe,
                                 'messgroesse': self.messgroesse,
@@ -224,5 +218,3 @@ class Messung:
                                 'einheit': self.einheit, 'gauss': gauss,
                                 'hist': hist, 'plotfileds': plotfields}
         return object_serialisation
-
-
