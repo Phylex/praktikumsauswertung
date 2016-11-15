@@ -17,7 +17,7 @@ einheitenpraefixe = {-15: 'f', -12: 'p', -9: 'n', -6: 'micro', -5: '10^-5', -3: 
                      3: 'k', 6: 'M', 9: 'G', 12: 'T', 15: 'Ex'}
 
 
-def Create_Messdaten_tabellen(tabellenname: str, *arguments, vertline=False, horline=False, alignment='center'):
+def create_messdaten_tabellen(tabellenname: str, *arguments, vertline=False, horline=False, alignment='center'):
     """Creates a LaTeX table from the collected data and scales the table automatically
     horline produces horizontal lines between the different fields
     Vertline produces vertical lines between the columns"""
@@ -92,16 +92,24 @@ def Create_Messdaten_tabellen(tabellenname: str, *arguments, vertline=False, hor
     tablefile.close()
 
 
-class messung:
-    """Represents a messreihe and its associated data such as statisticaly relevant data. It also provides Funktions to\
-    output that data and transform it into appropriate formats"""
+def decodemessungenfromjson(messungsdict: dict):
+    try:
+        if messungsdict['object'] == 'messung':
+            messungsobject = Messung(messungsdict['experiment'], messungsdict['messgroesse'], messungsdict['messreihe'],
+                                     messungsdict['formelzeihen'], messungsdict['einheit'], messungsdict['messgeraet'],
+                                     messungsdict['messfehler'], messungsdict['groessenordnung'])
+            messungsobject.set_gauss_parameter(messungsdict['gauss'])
+            messungsobject.set_hist_parameter(messungsdict['hist'])
+            return messungsobject
+        else:
+            return None
+    except KeyError:
+        return None
 
-    def calculate_gaussian_data(messreihe: list) -> list:
-        """Calculates the mean, variance and std. deviation of a list of numbers"""
-        std_dev = np.std(messreihe, ddof=1)
-        var = np.var(messreihe)
-        mean = np.mean(messreihe)
-        return std_dev, var, mean
+
+class Messung:
+    """Represents a Messreihe and its associated data such as statistically relevant data. It also provides Function to\
+    output that data and transform it into appropriate formats"""
 
     @staticmethod
     def graph_width(measurement: np.array, overshoot: float = 0.2) -> np.array:
@@ -111,43 +119,51 @@ class messung:
         maximum = max(measurement) + overshoot * span
         return np.linspace(minimum, maximum, 2000)
 
+
+    def calculate_gaussian_data(self) -> tuple:
+        """Calculates the mean, variance and std. deviation of a list of numbers"""
+        std_dev = np.std(self.messreihe, ddof=1)
+        var = np.var(self.messreihe)
+        mean = np.mean(self.messreihe)
+        return std_dev, var, mean
+
     @staticmethod
-    def gauss_funktion(x_werte: np.array, mittelwert: float, standardabweichung: float) -> np.array:
+    def gauss_funktion(xwerte: np.array, mean: float, std_dev: float) -> np.array:
         """calculates the values of a gauss curve characterized by the deviation and mean for every value given in \
         x_werte. returns an array"""
-        return 1 / (standardabweichung * 2 * np.pi) * np.exp(
-            -(1 / 2) * ((x_werte - mittelwert) / standardabweichung) ** 2)
+        return 1 / (std_dev * 2 * np.pi) * np.exp(-(1 / 2) * ((xwerte - mean) / std_dev) ** 2)
 
-    def __init__(self, messgroesse, messreihe, formelzeichen, einheit, messgeraet=None, messfehler=None,
-                 groessenordnung=0):
+    def __init__(self, experiment: str, messgroesse: str, messreihe: list, formelzeichen: str, einheit: str, messgeraet: str = None, messfehler: float = None,
+                 groessenordnung: int = 0):
         """Constructor; besides taking given arguments, it allso builds all the necessary stuff for a plotting and \
         a table"""
         # we first costruct the named tuples we need for the object
-        gaussstruct = col.namedtuple('gauss', ['function', 'x_values', 'color', 'label', 'linestyle'])
-        histstruct = col.namedtuple('hist', ['bins', 'align', 'log', 'color', 'label'])
-        plotstruct = col.namedtuple('plot', ['gauss', 'hist'])
+        self.gaussstruct = col.namedtuple('gauss', ['function', 'x_values', 'color', 'label', 'linestyle'])
+        self.histstruct = col.namedtuple('hist', ['bins', 'align', 'log', 'color', 'label'])
+        self.plotstruct = col.namedtuple('plot', ['gauss', 'hist'])
+        # now we add the relevant metadata to the object
+        self.experiment = experiment
         self.messreihe = messreihe
         self.messgroesse = messgroesse
-        self.Formelzeichen = Formelzeichen
+        self.formelzeichen = formelzeichen
         self.messgeraet = messgeraet
         self.messfehler = messfehler
         self.groessenordnung = groessenordnung
         self.einheit = einheit
-        self.std_dev, self.var, self.mean = calculate_gaussian_data(self.messreihe)
+        self.std_dev, self.var, self.mean = self.calculate_gaussian_data()
         # now the structs are filled and inserted into oneanother
         plotwidth = self.graph_width(self.messreihe, 0.3)
-        gaussfunktion = self.gauss_funktion(plotwidth, self.mean, self.std_dev)
+        gaussfunction = self.gauss_funktion(plotwidth, self.mean, self.std_dev)
         if type(messgroesse) == str:
-            gauss = gaussstruct(gaussfunktion, plotwidth, 'blue', 'Gaussian curve of ' + messgroesse, '-')
-            hist = histstruct(20, 'mid', False, 'green', messgroesse)
+            gauss = self.gaussstruct(gaussfunction, plotwidth, 'blue', 'Gaussian curve of ' + messgroesse, '-')
+            hist = self.histstruct(20, 'mid', False, 'green', messgroesse)
         else:
-            gauss = gaussstruct(gaussfunktion, plotwidth, 'blue', '', '-')
-            hist = histstruct(20, 'mid', False, 'green', '')
-        self.plot = plotstruct(gauss, hist)
+            gauss = self.gaussstruct(gaussfunction, plotwidth, 'blue', '', '-')
+            hist = self.histstruct(20, 'mid', False, 'green', '')
+        self.plot = self.plotstruct(gauss, hist)
 
     # Seters and getters from here on
-    @classmethod
-    def set_messung_properties(**kwargs):
+    def set_messung_properties(self, **kwargs):
         """Sets the general properties of the messung"""
         for kw in kwargs.keys():
             if str(kw) == 'messreihe':
@@ -155,16 +171,15 @@ class messung:
             elif str(kw) == 'messgroesse':
                 self.messreihe = kwargs[kw]
             elif str(kw) == 'color':
-                self.messgeraet = kwargs[kw]
+                 self.messgeraet = kwargs[kw]
             elif str(kw) == 'label':
                 self.messfehler = kwargs[kw]
             elif str(kw) == 'Formelzeichen':
-                self.Formelzeichen = kwargs[kw]
+                self.formelzeichen = kwargs[kw]
             elif str(kw) == 'groessenordnung':
                 self.groessenordnung = kwargs[kw]
 
-    @classmethod
-    def set_hist_parameter(**kwargs):
+    def set_hist_parameter(self, **kwargs):
         """Sets the parameters for the histogram of the measurement"""
         for kw in kwargs.keys():
             if str(kw) == 'bins':
@@ -178,9 +193,8 @@ class messung:
             elif str(kw) == 'log':
                 self.plot.hist.log = kwargs[kw]
 
-    @classmethod
-    def set_gauss_parameter(**kwargs):
-        """Set the parameters for the plot of the gauss-funktion"""
+    def set_gauss_parameter(self, **kwargs):
+        """Set the parameters for the plot of the gauss-function"""
         for kw in kwargs.keys():
             if str(kw) == 'relwidth':
                 self.plot.gauss.x_values = graph_width(self.messreihe, kwargs[kw])
@@ -192,11 +206,23 @@ class messung:
                 self.plot.gauss.label = kwargs[kw]
 
     # encoder and decoder for json
-    @classmethod
-    def encodeJSON(cls):
+    def encodejson(self):
         """Encodes all the parts of the object into a dict, so it can be written into a JSON file by the json library"""
-        gaussobject = cls.plot.gauss._asdict()
-        objectSerialisation = {'object': 'messung', 'messreihe': self.messreihe, 'messgroesse': self.messgroesse,
-                               'Formelzeichen': self.Formelzeichen, 'messgeraet': self.messgeraet,
-                               'messfehler': self.messfehler, 'groessenordnung': self.groessenordnung,
-                               'einheit': self.einheit, 'plot': self.plot._asdict()}
+        gaussinfo = []
+        for i,value in enumerate(self.plot.gauss):
+           gaussinfo.append((self.plot.gauss._fields[i],value))
+        histinfo = []
+        for i,value in enumerate(self.plot.hist):
+            histinfo.append((self.plot.hist._fields[i],value))
+        gauss = dict(gaussinfo)
+        hist = dict(histinfo)
+        plotfields = self.plot._fields
+        object_serialisation = {'object': 'messung', 'experiment': self.experiment, 'messreihe': self.messreihe,
+                                'messgroesse': self.messgroesse,
+                                'formelzeichen': self.formelzeichen, 'messgeraet': self.messgeraet,
+                                'messfehler': self.messfehler, 'groessenordnung': self.groessenordnung,
+                                'einheit': self.einheit, 'gauss': gauss,
+                                'hist': hist, 'plotfileds': plotfields}
+        return object_serialisation
+
+
