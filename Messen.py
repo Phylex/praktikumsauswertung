@@ -137,12 +137,12 @@ answer = input('Moechten Sie sich ihre gemessenene Ergebnisse anzeigen lassen (y
 if answer is 'y' or answer is 'Y':
     print ('Metadaten zu den erfassten Messgroessen: ')
     for messgroesse in messgroessen:
-        print ('================================================================================')
+        print ('-'*40)
         messungsgroessenindex = 1
         for j in range(len(messgroesse)):
             print ( str(messungsgroessenindex)+'. '+metadaten[j][0]+': '+ str(messgroesse[j]), end='\n')
             messungsgroessenindex += 1
-        print ('================================================================================')
+        print ('='*40)
         while input(eingaberichtig) == ('n' or 'N'):
             answer = input_with_type_check(welcheeingabe,'int','Bitte geben Sie eine Zahl an!')
             # TODO here there is something wrong try to fix that at some point
@@ -153,7 +153,7 @@ if answer is 'y' or answer is 'Y':
                 messgroesse[answer-1] = correctedvalue
 
     print ('\n\nErfasste Daten:')
-    print ('================================================================================')
+    print ('='*40)
     # now we build a printable table
     messungskopie = copy.deepcopy(messungen)
     messungsindex = 1
