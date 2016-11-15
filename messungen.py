@@ -1,19 +1,19 @@
 #!/usr/bin/python
-
 ###############################################################################
-# Use:  This file is a objectifying the code allready written. It uses Objects
-#       to make using the software easieer
+# Use:  This file is a objectification of the code already written. It uses Objects
+#       to make using the software easier
 # Author: Alexander Becker
 ###############################################################################
 
 ################################## imports ####################################
+import matplotlib.pyplot as plt
 import numpy as np
 import collections as col
 
-###############################################################################
+################################## Static stuff ###############################
 einheitenpraefixe = {-15: 'f', -12: 'p', -9: 'n', -6: 'micro', -5: '10^-5', -3: 'm', -2: 'c', -1: 'd', 0: '', 2: 'h',
                      3: 'k', 6: 'M', 9: 'G', 12: 'T', 15: 'Ex'}
-
+###############################################################################
 
 def create_messdaten_tabellen(tabellenname: str, *arguments, vertline=False, horline=False, alignment='center'):
     """Creates a LaTeX table from the collected data and scales the table automatically
@@ -85,55 +85,18 @@ def create_messdaten_tabellen(tabellenname: str, *arguments, vertline=False, hor
     tablefile.close()
 
 
-def decodemessungenfromjson(messungsdict: dict):
-    try:
-        if messungsdict['object'] == 'messung':
-            messungsobject = Messung(messungsdict['experiment'], messungsdict['messgroesse'], messungsdict['messreihe'],
-                                     messungsdict['formelzeichen'], messungsdict['einheit'], messungsdict['messgeraet'],
-                                     messungsdict['messfehler'], messungsdict['groessenordnung'])
-            for key, value in iter(messungsdict['gauss']):
-                messungsobject.set_gauss_parameter(key=value)
-            for key, value in iter(messungsdict['hist']):
-                messungsobject.set_hist_parameter(key=value)
-            return messungsobject
-        else:
-            return None
-    except KeyError:
-        return None
-
-
 class Messung:
     """Represents a Messreihe and its associated data such as statistically relevant data. It also provides Function to\
     output that data and transform it into appropriate formats"""
-
-    @staticmethod
-    def graph_width(measurement: list, overshoot: float = 0.2) -> np.array:
-        """Determines the Interval generated to plot over from the given data"""
-        span = max(measurement) - min(measurement)
-        minimum = min(measurement) - overshoot * span
-        maximum = max(measurement) + overshoot * span
-        return np.linspace(minimum, maximum, 2000)
-
-
-    def calculate_gaussian_data(self) -> tuple:
-        """Calculates the mean, variance and std. deviation of a list of numbers"""
-        std_dev = np.std(self.messreihe, ddof=1)
-        var = np.var(self.messreihe)
-        mean = np.mean(self.messreihe)
-        return std_dev, var, mean
-
-    @staticmethod
-    def gauss_funktion(xwerte: np.array, mean: float, std_dev: float) -> np.array:
-        """calculates the values of a gauss curve characterized by the deviation and mean for every value given in \
-        x_werte. returns an array"""
-        return 1 / (std_dev * 2 * np.pi) * np.exp(-(1 / 2) * ((xwerte - mean) / std_dev) ** 2)
 
     def __init__(self, experiment: str, messgroesse: str, messreihe: list, formelzeichen: str, einheit: str, messgeraet: str = None, messfehler: float = None,
                  groessenordnung: int = 0):
         """Constructor; besides taking given arguments, it allso builds all the necessary stuff for a plotting and \
         a table"""
         # we first costruct the named tuples we need for the object
-        self.gaussstruct = col.namedtuple('gauss', ['function', 'x_values', 'color', 'label', 'linestyle'])
+        # the names of the fields are not allowed to be renamed, for they are used as keywords when passing the data to
+        # the matplotlib funktions
+        self.gaussstruct = col.namedtuple('gauss', ['ydata', 'xdata', 'color', 'label', 'linestyle'])
         self.histstruct = col.namedtuple('hist', ['bins', 'align', 'log', 'color', 'label'])
         self.plotstruct = col.namedtuple('plot', ['gauss', 'hist'])
         # now we add the relevant metadata to the object
@@ -157,7 +120,28 @@ class Messung:
             hist = self.histstruct(20, 'mid', False, 'green', '')
         self.plot = self.plotstruct(gauss, hist)
 
-    # Seters and getters from here on
+    @staticmethod
+    def graph_width(measurement: list, overshoot: float = 0.2) -> np.array:
+        """Determines the Interval generated to plot over from the given data"""
+        span = max(measurement) - min(measurement)
+        minimum = min(measurement) - overshoot * span
+        maximum = max(measurement) + overshoot * span
+        return np.linspace(minimum, maximum, 2000)
+
+    def calculate_gaussian_data(self) -> tuple:
+        """Calculates the mean, variance and std. deviation of a list of numbers"""
+        std_dev = np.std(self.messreihe, ddof=1)
+        var = np.var(self.messreihe)
+        mean = np.mean(self.messreihe)
+        return std_dev, var, mean
+
+    @staticmethod
+    def gauss_funktion(xwerte: np.array, mean: float, std_dev: float) -> np.array:
+        """calculates the values of a gauss curve characterized by the deviation and mean for every value given in \
+        x_werte. returns an array"""
+        return 1 / (std_dev * 2 * np.pi) * np.exp(-(1 / 2) * ((xwerte - mean) / std_dev) ** 2)
+
+    # Setters and getters from here on
     def set_messung_properties(self, **kwargs):
         """Sets the general properties of the messung"""
         for kw in kwargs.keys():
@@ -201,20 +185,82 @@ class Messung:
                 self.plot.gauss.label = kwargs[kw]
 
     # encoder and decoder for json
-    @property
     def encodejson(self):
         """Encodes all the parts of the object into a dict, so it can be written into a JSON file by the json library"""
         gauss = []
         for i,value in enumerate(self.plot.gauss):
-           gauss.append((self.plot.gauss._fields[i],value))
+           gauss.append((self.plot.gauss._fields[i], value))
         hist = []
         for i,value in enumerate(self.plot.hist):
-            hist.append((self.plot.hist._fields[i],value))
-        plotfields = self.plot._fields
+            hist.append((self.plot.hist._fields[i], value))
+        gauss = dict(gauss)
+        hist = dict(hist)
         object_serialisation = {'object': 'messung', 'experiment': self.experiment, 'messreihe': self.messreihe,
                                 'messgroesse': self.messgroesse,
                                 'formelzeichen': self.formelzeichen, 'messgeraet': self.messgeraet,
                                 'messfehler': self.messfehler, 'groessenordnung': self.groessenordnung,
                                 'einheit': self.einheit, 'gauss': gauss,
-                                'hist': hist, 'plotfileds': plotfields}
+                                'hist': hist}
         return object_serialisation
+
+    # plots the messung into the
+    def plot_messung(self) -> plt.figure:
+        figure = plt.figure()
+        axis1 = figure.add_axes([0, 0, 1, 1])
+        axis1.set_ylabel()
+        axis1.hist(self.messreihe, self.plot.hist._asdict())
+        axis1.set_xlabel(self.messgroesse+' ('+einheitenpraefixe[self.groessenordnung]+')')
+        plt.title(self.experiment)
+        for ti in axis1.get_yticklabels():
+            ti.set_color(self.plot.hist.color)
+
+        axis2 = axis1.twinx()
+        axis2.plot(**self.plot.gauss._asdict())
+        axis2.set_ylabel('Gaussian Curve')
+        axis2.grid()
+        for ti in axis2.get_yticklabels():
+            ti.set_color(self.plot.gauss.color)
+        return figure
+
+
+def decodemessungenfromjson(messungsdict: dict) -> Messung:
+    try:
+        if messungsdict['object'] == 'messung':
+            messungsobject = Messung(messungsdict['experiment'], messungsdict['messgroesse'], messungsdict['messreihe'],
+                                     messungsdict['formelzeichen'], messungsdict['einheit'], messungsdict['messgeraet'],
+                                     messungsdict['messfehler'], messungsdict['groessenordnung'])
+            messungsobject.set_gauss_parameter(**messungsdict['gauss'])
+            messungsobject.set_hist_parameter(**messungsdict['hist'])
+            return messungsobject
+        else:
+            return None
+    except KeyError:
+        return None
+
+
+def create_fit_from_messungen(xmessung: Messung ,ymessung: Messung = None) -> list:
+    if ymessung != None:
+        # We now do some checking for of the compatibility of the objects
+        if len(xmessung.messreihe) != len(ymessung.messreihe):
+            raise IndexError('Amount of measurements don\'t match in length')
+        elif xmessung.experiment == ymessung.experiment:
+            raise NameError('The measurements dont belung to the same Experiment')
+        messreihenlist = []
+        for i,value in enumerate(xmessung.messreihe):
+           messreihenlist.append((value, ymessung.messreihe[i]))
+        errortype = []
+        if type(xmessung.messfehler) == float or xmessung.messfehler is None:
+            errortype.append('simple')
+        else:
+            errortype.append('matrix')
+        if type(ymessung.messfehler) == float or ymessung.messfehler is None:
+            errortype.append('simple')
+        else:
+            errortype.append('matrix')
+        return [{'data':[elem for elem in messreihenlist], 'axis_labels':[xmessung.messgroesse,ymessung.messgroesse],
+                'axis_units': [einheitenpraefixe[xmessung.groessenordnung] + xmessung.messgroesse,
+                               einheitenpraefixe[ymessung.groessenordnung] + ymessung.messgroesse],
+                'title': xmessung.experiment}, {'error': [xmessung.messfehler,ymessung.messfehler],
+                                                'errortype': errortype}]
+    else:
+        pass #TODO still need to code the variant of a single measurement encoding
